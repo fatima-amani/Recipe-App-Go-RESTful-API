@@ -1,0 +1,12 @@
+{
+    "name": "Chicken Biryani with Raita",
+    "ingredients": [
+      { "name": "chicken" },
+      { "name": "rice" },
+      { "name": "onion" },
+      { "name": "tomato" },
+      { "name": "biryani masala" },
+      { "name": "dahi" }
+    ]
+}
+  

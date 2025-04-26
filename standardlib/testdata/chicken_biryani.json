@@ -1,0 +1,10 @@
+{
+    "name": "Chicken Biryani",
+    "ingredients": [
+      { "name": "chicken" },
+      { "name": "rice" },
+      { "name": "onion" },
+      { "name": "tomato" },
+      { "name": "biryani masala" }
+    ]
+}  
