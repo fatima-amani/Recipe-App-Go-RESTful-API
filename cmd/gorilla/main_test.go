@@ -25,9 +25,10 @@ func readTestData(t *testing.T, name string) []byte {
 
 func TestRecipesHandlerCRUD_Integration(t *testing.T) {
 	store := recipes.NewMemStore()
-	recipesHandler := NewRecipesHandler(store)
 
 	router := mux.NewRouter()
+	recipesHandler := NewRecipesHandler(store, router)
+
 	router.HandleFunc("/recipes", recipesHandler.CreateRecipe).Methods(http.MethodPost)
 	router.HandleFunc("/recipes", recipesHandler.GetRecipes).Methods(http.MethodGet)
 	router.HandleFunc("/recipes/{id}", recipesHandler.GetRecipe).Methods(http.MethodGet)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"recipe-crud/pkg/recipes"
 
@@ -12,17 +13,13 @@ import (
 func main() {
 
 	store := recipes.NewMemStore()
-	recipesHandler := NewRecipesHandler(store)
-	home := homeHandler{}
-
 	router := mux.NewRouter()
+	router.Handle("/", &homeHandler{})
+	router.Use(loggingMiddleware)
 
-	router.HandleFunc("/", home.ServeHTTP)
-	router.HandleFunc("/recipes", recipesHandler.CreateRecipe).Methods("POST")
-	router.HandleFunc("/recipes", recipesHandler.GetRecipes).Methods("GET")
-	router.HandleFunc("/recipes/{id}", recipesHandler.GetRecipe).Methods("GET")
-	router.HandleFunc("/recipes/{id}", recipesHandler.UpdateRecipe).Methods("PUT")
-	router.HandleFunc("/recipes/{id}", recipesHandler.DeleteRecipe).Methods("DELETE")
+	s := router.PathPrefix("/recipes").Subrouter()
+
+	NewRecipesHandler(store, s)
 
 	http.ListenAndServe(":8080", router)
 }
@@ -31,10 +28,28 @@ type RecipesHandler struct {
 	store recipeStore
 }
 
-func NewRecipesHandler(s recipeStore) *RecipesHandler {
-	return &RecipesHandler{
+func NewRecipesHandler(s recipeStore, router *mux.Router) *RecipesHandler {
+
+	handler := &RecipesHandler{
 		store: s,
 	}
+
+	router.HandleFunc("/", handler.CreateRecipe).Methods("POST")
+	router.HandleFunc("/", handler.GetRecipes).Methods("GET")
+	router.HandleFunc("/{id}", handler.GetRecipe).Methods("GET")
+	router.HandleFunc("/{id}", handler.UpdateRecipe).Methods("PUT")
+	router.HandleFunc("/{id}", handler.DeleteRecipe).Methods("DELETE")
+
+	return handler
+
+}
+
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		fmt.Println("Request received:", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
 }
 
 type recipeStore interface {
